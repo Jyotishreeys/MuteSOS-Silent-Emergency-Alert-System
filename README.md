@@ -1,2 +1,2 @@
 # MuteSOS-Silent-Emergency-Alert-System
-A Django-based Silent SOS Alert System with AI Voice Detection and Trusted Contact Alerts
+🔹 A Smart AI-Powered SOS Alert System | Built with Django | Voice Tone Detection, Trusted Contacts & PWA
