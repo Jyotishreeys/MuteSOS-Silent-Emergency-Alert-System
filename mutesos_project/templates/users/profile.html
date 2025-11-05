@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                
+                <!-- Header -->
+                <div class="card-header bg-danger text-white text-center rounded-top-4">
+                    <h3 class="mb-0 fw-bold">👤 SOS Profile</h3>
+                    <small class="fw-light">Manage Your Secure Personal Details</small>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body px-5 py-4">
+
+                    <!-- Profile Info -->
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="fw-semibold">Full Name:</span>
+                            <span>{{ user.profile.full_name }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="fw-semibold">Username:</span>
+                            <span>{{ user.username }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="fw-semibold">Email:</span>
+                            <span>{{ user.email }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="fw-semibold">Age:</span>
+                            <span>{{ user.profile.age }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="fw-semibold">Gender:</span>
+                            <span>{{ user.profile.gender }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="fw-semibold">Phone:</span>
+                            <span>{{ user.profile.phone }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="fw-semibold">Address:</span>
+                            <span>{{ user.profile.address }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="fw-semibold">Secret Passphrase:</span>
+                            <span>{{ user.profile.secret_passphrase|default:"Not Set" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="fw-semibold">Voice Keyword:</span>
+                            <span>{{ user.profile.voice_keyword|default:"Not Set" }}</span>
+                        </li>
+                    </ul>
+
+                    <!-- Profile Update Form -->
+                    <h5 class="fw-bold text-center text-primary mb-3">✏️ Update Your Profile</h5>
+                    <form method="POST" class="mb-3">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">{{ field.label }}</label>
+                                {% render_field field class="form-control rounded-3 shadow-sm" %}
+                                {% if field.errors %}
+                                    <div class="text-danger small">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-success w-100 fw-semibold shadow-sm">
+                            💾 Save Changes
+                        </button>
+                    </form>
+
+                    <!-- Logout Button -->
+                    <div class="text-center mt-4">
+                        <form method="post" action="{% url 'users:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger px-4 rounded-3 fw-semibold shadow-sm">
+                                🔓 Logout Securely
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

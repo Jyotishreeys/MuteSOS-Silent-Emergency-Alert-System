@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height:75vh;">
+    <div class="card shadow-lg p-4 w-100" style="max-width: 600px; border-radius: 1rem;">
+        
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h3 class="text-primary fw-bold">{{ title }}</h3>
+            <p class="text-muted">Fill in the details below and save your trusted contact.</p>
+        </div>
+
+        <!-- Form -->
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <!-- Render fields manually for better Bootstrap control -->
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg px-4 me-2">
+                    <i class="bi bi-save-fill"></i> Save
+                </button>
+                <a href="{% url 'contacts:manage_contacts' %}" 
+                   class="btn btn-outline-secondary btn-lg px-4">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

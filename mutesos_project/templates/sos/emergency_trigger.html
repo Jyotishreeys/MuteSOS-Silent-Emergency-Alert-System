@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Page Title -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i> Emergency SOS Trigger
+        </h2>
+        <p class="text-muted">Quickly notify your trusted contacts and helplines in case of emergency.</p>
+    </div>
+
+    <!-- Permission Status -->
+    <div class="alert alert-info text-center" id="permission-status" style="font-weight: bold;">
+        Checking microphone and location permissions...
+    </div>
+
+    <!-- SOS Alerts -->
+    <div id="sos-alert" class="alert text-center mt-3 d-none" role="alert"></div>
+
+    <!-- SOS Trigger Form (Manual) -->
+    <form method="POST" id="manual-sos-form">
+        {% csrf_token %}
+        <input type="hidden" id="latitude_manual" name="latitude">
+        <input type="hidden" id="longitude_manual" name="longitude">
+
+        <!-- Trusted Contacts -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white fw-bold">
+                <i class="bi bi-people-fill"></i> Active Trusted Contacts
+            </div>
+            <div class="card-body">
+                {% if active_contacts %}
+                    <div class="list-group">
+                        {% for contact in active_contacts %}
+                            <label class="list-group-item d-flex align-items-center">
+                                <input type="checkbox" name="selected_contacts" value="{{ contact.phone_number }}" class="form-check-input me-2" checked>
+                                <span class="fw-semibold">{{ contact.name }}</span>
+                                <span class="text-muted ms-2">({{ contact.relationship }})</span>
+                                <span class="badge bg-light text-dark ms-auto">{{ contact.phone_number }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No active trusted contacts found.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Emergency Helplines -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white fw-bold">
+                <i class="bi bi-telephone-fill"></i> Active Emergency Helplines
+            </div>
+            <div class="card-body">
+                {% if active_helplines %}
+                    <div class="list-group">
+                        {% for helpline in active_helplines %}
+                            <label class="list-group-item d-flex align-items-center">
+                                <input type="checkbox" name="selected_contacts" value="{{ helpline.phone_number }}" class="form-check-input me-2" checked>
+                                <span class="fw-semibold">{{ helpline.label }}</span>
+                                <span class="badge bg-light text-dark ms-auto">{{ helpline.phone_number }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No active helplines found.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Manual SOS Button -->
+        <div class="text-center my-4">
+            <button class="btn btn-lg btn-danger shadow pulse-btn" type="submit" name="trigger_button" id="manual-sos-btn">
+                <i class="bi bi-broadcast-pin"></i> Trigger SOS
+            </button>
+        </div>
+    </form>
+
+    <!-- Voice SOS Button -->
+    <div class="text-center my-4">
+        <button type="button" id="voice-sos-btn" class="btn btn-lg btn-danger shadow pulse-btn">
+            <i class="bi bi-mic-fill"></i> Trigger SOS via Voice
+        </button>
+    </div>
+
+    <!-- Secret Passphrase Trigger -->
+    <div class="card shadow-sm mt-5">
+        <div class="card-header bg-warning text-dark fw-bold text-center">
+            <i class="bi bi-lock-fill"></i> Trigger with Secret Passphrase
+        </div>
+        <div class="card-body">
+            <form method="POST" id="passphrase-sos-form">
+                {% csrf_token %}
+                <input type="hidden" id="latitude_pass" name="latitude">
+                <input type="hidden" id="longitude_pass" name="longitude">
+
+                <div class="d-flex justify-content-center">
+                    <input type="password" name="passphrase" class="form-control w-50" placeholder="Enter Secret Passphrase" required>
+                </div>
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-warning shadow" id="passphrase-sos-btn">
+                        <i class="bi bi-key-fill"></i> Trigger with Passphrase
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.pulse-btn { animation: pulse 1.5s infinite; }
+@keyframes pulse {
+    0% { box-shadow:0 0 0 0 rgba(220,53,69,0.7);}
+    70% { box-shadow:0 0 0 15px rgba(220,53,69,0);}
+    100% { box-shadow:0 0 0 0 rgba(220,53,69,0);}
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let latitude=null, longitude=null;
+    const status=document.getElementById("permission-status");
+    const alertBox=document.getElementById("sos-alert");
+    const manualBtn=document.getElementById("manual-sos-btn");
+    const passBtn=document.getElementById("passphrase-sos-btn");
+
+    manualBtn.disabled=true;
+    passBtn.disabled=true;
+
+    // ---------- Geolocation ----------
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(pos=>{
+            latitude=pos.coords.latitude;
+            longitude=pos.coords.longitude;
+            document.getElementById("latitude_manual").value=latitude;
+            document.getElementById("longitude_manual").value=longitude;
+            document.getElementById("latitude_pass").value=latitude;
+            document.getElementById("longitude_pass").value=longitude;
+            status.innerHTML="✅ Location ready";
+            manualBtn.disabled=false;
+            passBtn.disabled=false;
+        }, err=>{
+            status.innerHTML="❌ Location denied: "+err.message;
+            manualBtn.disabled=false;
+            passBtn.disabled=false;
+        });
+    } else { 
+        status.innerHTML="❌ Geolocation not supported"; 
+        manualBtn.disabled=false; 
+        passBtn.disabled=false; 
+    }
+
+    // ---------- Form Submit Inline Alerts ----------
+    function handleFormSubmit(formId){
+        document.getElementById(formId).addEventListener("submit", e=>{
+            if(!latitude || !longitude){ 
+                alert("⚠️ Waiting for geolocation!"); 
+                e.preventDefault(); 
+            }
+        });
+    }
+    handleFormSubmit("manual-sos-form");
+    handleFormSubmit("passphrase-sos-form");
+
+    // ---------- Voice SOS ----------
+    const voiceBtn = document.getElementById("voice-sos-btn");
+    voiceBtn.addEventListener("click", async () => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert("❌ Microphone not supported in your browser!");
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            let chunks = [];
+
+            mediaRecorder.ondataavailable = e => chunks.push(e.data);
+
+            mediaRecorder.onstop = async () => {
+                const blob = new Blob(chunks, { type: "audio/webm" });
+                const formData = new FormData();
+                formData.append("audio", blob, "voice_sos.webm");
+                formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+                formData.append("latitude", latitude);
+                formData.append("longitude", longitude);
+
+                // ✅ Corrected fetch URL
+                const response = await fetch("{% url 'ai_module:voice_trigger' %}", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await response.json();
+                if(data.status){
+                    alertBox.classList.remove("d-none", "alert-success", "alert-danger");
+                    alertBox.classList.add("alert-warning");
+                    alertBox.innerHTML = "🎙️ " + data.status + (data.spoken_text ? "<br>Detected: "+data.spoken_text : "");
+                }
+            };
+
+            mediaRecorder.start();
+            alert("🎙️ Recording 5 seconds. Speak your SOS keyword now!");
+            setTimeout(() => {
+                mediaRecorder.stop();
+                stream.getTracks().forEach(track=>track.stop());
+            }, 5000);
+
+        } catch (err) {
+            alert("❌ Error accessing microphone: " + err.message);
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,162 @@
+/* 🌐 Global Styles */
+body {
+    background-color: #f4f7fb;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    color: #2d2d2d;
+    line-height: 1.5;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* 🔹 Navbar Styling */
+.navbar {
+    background: linear-gradient(90deg, #007bff, #00c6ff);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.navbar-brand {
+    font-weight: 600;
+    color: #fff !important;
+    font-size: 1.2rem;
+    letter-spacing: 0.5px;
+}
+.navbar-nav .nav-link {
+    color: #f8f9fa !important;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    transition: 0.2s;
+}
+.navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 5px;
+}
+
+/* 🔹 Card Styling */
+.card {
+    border-radius: 0.8rem;
+    border: none;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transition: 0.25s ease;
+}
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+.card-header {
+    background: linear-gradient(135deg, #007bff, #00c6ff);
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 0.8rem 0.8rem 0 0;
+    padding: 0.6rem 1rem;
+}
+
+/* 🔹 Headings */
+h1, h2, h3, h5 {
+    font-weight: 600;
+    color: #007bff;
+    margin-bottom: 0.6rem;
+}
+
+/* 🔹 Buttons */
+.btn {
+    border-radius: 30px;
+    padding: 6px 18px;
+    font-size: 0.88rem;
+    transition: 0.25s;
+}
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #00c6ff);
+    border: none;
+}
+.btn-primary:hover {
+    background: linear-gradient(45deg, #0056b3, #0094cc);
+    transform: scale(1.03);
+}
+.btn-outline-secondary {
+    border-radius: 30px;
+    font-weight: 500;
+    padding: 5px 15px;
+}
+
+/* 🔹 Forms */
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    transition: 0.25s;
+}
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 6px rgba(0,123,255,0.15);
+}
+
+/* 🔹 Footer */
+footer {
+    background: #f8f9fa;
+    text-align: center;
+    padding: 12px 10px;
+    font-size: 0.85rem;
+    color: #555;
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+/* 🌑 Dark Mode Global */
+body.dark-mode {
+    background-color: #121212 !important;
+    color: #e0e0e0 !important;
+    transition: background 0.25s, color 0.25s;
+}
+
+/* 🔹 Navbar Dark */
+.navbar.dark-mode {
+    background-color: #1f1f1f !important;
+}
+.navbar.dark-mode .navbar-brand,
+.navbar.dark-mode .nav-link {
+    color: #e0e0e0 !important;
+}
+.navbar.dark-mode .nav-link:hover {
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 5px;
+}
+
+/* 🔹 Cards Dark */
+.card.dark-mode {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.card-header.dark-mode {
+    background: linear-gradient(135deg, #007bff, #00c6ff) !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+/* 🔹 Buttons Dark */
+.btn.dark-mode {
+    background-color: #333 !important;
+    color: #fff !important;
+    border: none !important;
+}
+.btn.dark-mode:hover {
+    background-color: #555 !important;
+    transform: scale(1.03);
+}
+
+/* 🔹 Forms Dark */
+.form-control.dark-mode,
+textarea.dark-mode,
+select.dark-mode {
+    background-color: #2c2c2c !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #444 !important;
+}
+
+/* 🔹 Smooth Transition */
+* {
+    transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+

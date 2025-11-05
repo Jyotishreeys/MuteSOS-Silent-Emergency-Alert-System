@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            
+            <!-- Card Wrapper -->
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-danger text-white text-center rounded-top-4">
+                    <h3 class="mb-0">🔐 SOS Registration</h3>
+                </div>
+
+                <div class="card-body bg-light rounded-bottom-4">
+                    
+                    <!-- 🛑 Show validation errors -->
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="POST" class="p-3">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.username.label }}</label>
+                                {{ form.username|add_class:"form-control" }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.email.label }}</label>
+                                {{ form.email|add_class:"form-control" }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.password1.label }}</label>
+                                {{ form.password1|add_class:"form-control" }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.password2.label }}</label>
+                                {{ form.password2|add_class:"form-control" }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.full_name.label }}</label>
+                                {{ form.full_name|add_class:"form-control" }}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">{{ form.age.label }}</label>
+                                {{ form.age|add_class:"form-control" }}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">{{ form.gender.label }}</label>
+                                {{ form.gender|add_class:"form-select" }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.phone.label }}</label>
+                                {{ form.phone|add_class:"form-control" }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">{{ form.address.label }}</label>
+                                {{ form.address|add_class:"form-control" }}
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">{{ form.secret_passphrase.label }}</label>
+                                {{ form.secret_passphrase|add_class:"form-control" }}
+                                <small class="text-muted">This will be used to trigger SOS alerts quickly.</small>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">{{ form.voice_keyword.label }}</label>
+                                {{ form.voice_keyword|add_class:"form-control" }}
+                                <small class="text-muted">Speak this keyword to trigger SOS automatically.</small>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-danger w-100 mt-4 fw-bold shadow-sm">
+                            🚨 Register Now
+                        </button>
+                    </form>
+
+                    <p class="mt-3 text-center">
+                        Already registered? 
+                        <a href="{% url 'users:login' %}" class="fw-bold text-decoration-none">Login here</a>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

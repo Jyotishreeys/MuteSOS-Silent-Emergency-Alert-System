@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- Hero Section -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-danger">🔴 MUTE SOS</h1>
+        <p class="lead text-muted">
+            A Silent Emergency Alert System for At-Risk Individuals
+        </p>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'users:register' %}" class="btn btn-primary btn-lg rounded-pill shadow-sm mt-3">
+                Get Started
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- ===========================
+         Your Sister - Prominent Card
+         =========================== -->
+    {% if user.is_authenticated %}
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm sister-card border-0 h-100 p-3">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-secondary">Your Sister</span>
+                        <div>
+                            <div style="font-weight:700; font-size:.95rem;">Guidelines & Affirmations</div>
+                            <div class="small text-muted">Gentle prompts to keep you safe and calm</div>
+                        </div>
+                    </div>
+
+                    <!-- Pause / Resume controls -->
+                    <div class="d-flex gap-2 align-items-center">
+                        <button id="sister-pause" class="btn btn-sm btn-outline-secondary" title="Pause auto-rotate">⏸ Pause</button>
+                        <button id="sister-resume" class="btn btn-sm btn-outline-primary d-none" title="Resume auto-rotate">▶ Resume</button>
+                    </div>
+                </div>
+
+                <div id="sister-rotating" class="sister-quote mt-2" style="min-height:48px; font-size:1rem;">Loading…</div>
+                <div class="sister-tip mt-3 small text-muted">Tip: Press <strong>Trigger SOS</strong> if you feel unsafe. You are not alone.</div>
+
+                <div class="mt-3 d-flex gap-2">
+                    <button id="sister-next" class="btn btn-sm btn-outline-primary">Next</button>
+                    <button id="sister-affirm" class="btn btn-sm btn-outline-success">Hear a Comfort</button>
+                    <button id="sister-share" class="btn btn-sm btn-outline-info" title="Share this message">Share</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Dashboard Modules -->
+    <div class="row g-4">
+
+        <!-- Module 1: Home -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 hover-card">
+                <div class="card-body d-flex flex-column text-center">
+                    <h5 class="card-title text-primary mb-3">🏠 Home</h5>
+                    <p class="text-muted small flex-grow-1">System overview and quick links to modules.</p>
+                    <a href="{% url 'emergency:home' %}" class="btn btn-outline-primary w-100">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 2: User System -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 hover-card">
+                <div class="card-body d-flex flex-column text-center">
+                    <h5 class="card-title text-success mb-3">👤 User System</h5>
+                    <p class="text-muted small flex-grow-1">Register, login, profile management, logout.</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'users:profile' %}" class="btn btn-outline-success w-100">Profile</a>
+                    {% else %}
+                        <a href="{% url 'users:register' %}" class="btn btn-outline-success w-100">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 3: Emergency Trigger -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 hover-card">
+                <div class="card-body d-flex flex-column text-center">
+                    <h5 class="card-title text-danger mb-3">🚨 Emergency Trigger</h5>
+                    <p class="text-muted small flex-grow-1">Send a silent alert instantly with a click or phrase.</p>
+                    {% if user.is_authenticated %}
+                        <!-- Trigger SOS Button -->
+                        <form id="sos-button-form" method="post" action="{% url 'sos:emergency_trigger' %}">
+                            {% csrf_token %}
+                            <button type="submit" name="trigger_button" class="btn btn-outline-danger w-100 sos-pulse">Trigger SOS</button>
+                        </form>
+
+                        <!-- Secret Passphrase Form -->
+                        <form id="sos-passphrase-form" method="post" action="{% url 'sos:emergency_trigger' %}" class="mt-2">
+                            {% csrf_token %}
+                            {{ passphrase_form.passphrase }}
+                            <button type="submit" class="btn btn-outline-secondary w-100 mt-2">Trigger via Passphrase</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'users:login' %}" class="btn btn-outline-danger w-100">Login to Trigger</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if user.is_authenticated %}
+        <!-- Module 4: Trusted Contacts -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 hover-card">
+                <div class="card-body d-flex flex-column text-center">
+                    <h5 class="card-title text-warning mb-3">📇 Trusted Contacts</h5>
+                    <p class="text-muted small flex-grow-1">Add, edit, delete, and toggle contacts ON/OFF.</p>
+                    <a href="{% url 'contacts:manage_contacts' %}" class="btn btn-outline-warning w-100">Manage Contacts</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 5: Emergency Helplines -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 hover-card">
+                <div class="card-body d-flex flex-column text-center">
+                    <h5 class="card-title text-info mb-3">📞 Emergency Helplines</h5>
+                    <p class="text-muted small flex-grow-1">Enable or disable predefined emergency helplines.</p>
+                    <a href="{% url 'contacts:manage_helplines' %}" class="btn btn-outline-info w-100">Manage Helplines</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module AI: Voice Trigger -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 hover-card">
+                <div class="card-body d-flex flex-column text-center">
+                    <h5 class="card-title text-primary mb-3">🎤 Voice Trigger</h5>
+                    <p class="text-muted small flex-grow-1">Say your secret keyword to trigger SOS automatically.</p>
+                    <button id="voice-trigger-btn" class="btn btn-outline-primary w-100">Start Voice Trigger</button>
+                    <small id="voice-status" class="text-muted mt-2 d-block"></small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Module 6: Admin Panel -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 hover-card">
+                <div class="card-body d-flex flex-column text-center">
+                    <h5 class="card-title text-dark mb-3">🛡️ Admin Panel</h5>
+                    <p class="text-muted small flex-grow-1">Access the Django admin dashboard for system management.</p>
+                    <a href="/admin" target="_blank" class="btn btn-outline-dark w-100">Admin Login</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const safeGet = id => document.getElementById(id);
+
+    // CSRF helper
+    function getCookie(name) {
+        const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return m ? m.pop() : '';
+    }
+    const CSRF = getCookie('csrftoken') || '{{ csrf_token }}';
+
+    // Geolocation
+    let userLatitude = '', userLongitude = '';
+    function requestGeolocation() {
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(
+            pos => { userLatitude = String(pos.coords.latitude); userLongitude = String(pos.coords.longitude); },
+            err => console.warn('Geolocation denied or failed:', err && err.message),
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+        );
+    }
+    requestGeolocation();
+
+    function ensureLocationInputs(form) {
+        if (!form) return;
+        let latInput = form.querySelector('input[name="latitude"]');
+        if (!latInput) { latInput = document.createElement('input'); latInput.type='hidden'; latInput.name='latitude'; form.appendChild(latInput); }
+        let lonInput = form.querySelector('input[name="longitude"]');
+        if (!lonInput) { lonInput = document.createElement('input'); lonInput.type='hidden'; lonInput.name='longitude'; form.appendChild(lonInput); }
+        latInput.value = userLatitude;
+        lonInput.value = userLongitude;
+    }
+
+    const sosForms = document.querySelectorAll('form[action$="{% url "sos:emergency_trigger" %}"]');
+    sosForms.forEach(form => form.addEventListener('submit', () => ensureLocationInputs(form)));
+    setInterval(() => sosForms.forEach(form => ensureLocationInputs(form)), 3000);
+
+    // Voice recognition
+    const voiceBtn = safeGet('voice-trigger-btn');
+    const voiceStatus = safeGet('voice-status');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = 'en-IN';
+
+        recognition.onstart = () => { if (voiceStatus) voiceStatus.textContent = '🎙️ Listening... say your keyword!'; };
+        recognition.onerror = e => { if (voiceStatus) voiceStatus.textContent = '⚠️ Error: ' + (e.error || 'unknown'); };
+        recognition.onend = () => { if (voiceStatus) voiceStatus.textContent = '🛑 Voice trigger stopped.'; };
+        recognition.onresult = (event) => {
+            const transcript = event.results[event.resultIndex][0].transcript.trim();
+            if (voiceStatus) voiceStatus.textContent = '📝 Heard: ' + transcript;
+            fetch("{% url 'ai_module:voice_trigger' %}", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: { "Content-Type":"application/json", "X-CSRFToken": CSRF },
+                body: JSON.stringify({ transcript, latitude: userLatitude, longitude: userLongitude })
+            })
+            .then(r => r.json())
+            .then(data => { if (voiceStatus) voiceStatus.textContent = data.status || JSON.stringify(data).slice(0,200); })
+            .catch(err => { console.error('Voice trigger request failed', err); if (voiceStatus) voiceStatus.textContent = '⚠️ Voice trigger request failed'; });
+        };
+    } else {
+        if (voiceStatus) voiceStatus.textContent = '⚠️ Your browser does not support voice recognition.';
+    }
+
+    if (voiceBtn) {
+        voiceBtn.addEventListener('click', function() {
+            if (!recognition) { if (voiceStatus) voiceStatus.textContent='⚠️ Voice recognition not available.'; return; }
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => { userLatitude=String(pos.coords.latitude); userLongitude=String(pos.coords.longitude); recognition.start(); },
+                    err => { console.warn('Geolocation failed at start:', err && err.message); recognition.start(); },
+                    { enableHighAccuracy:true, timeout:10000 }
+                );
+            } else recognition.start();
+        });
+    }
+
+    // Sister rotating messages
+    const sisterMessages = [
+        "Keep your phone charged before you leave — small things matter.",
+        "Share your location with a trusted contact when you step out.",
+        "If something feels off, trust your gut. Your safety matters.",
+        "Remember your secret passphrase — use it if you need silent help.",
+        "You are not alone. I’ve got your back.",
+        "You are safe, you are strong, and help is on the way.",
+        "It's okay to ask for help — you deserve safety.",
+        "One tap is enough. You are brave for taking steps to stay safe."
+    ];
+
+    let sisterIdx = 0;
+    const sisterEl = safeGet('sister-rotating');
+    const nextBtn = safeGet('sister-next');
+    const affirmBtn = safeGet('sister-affirm');
+    const pauseBtn = safeGet('sister-pause');
+    const resumeBtn = safeGet('sister-resume');
+    const shareBtn = safeGet('sister-share');
+
+    function showSister(idx){
+        if(!sisterEl) return;
+        sisterEl.style.opacity=0;
+        setTimeout(()=>{ sisterEl.textContent = sisterMessages[idx % sisterMessages.length]; sisterEl.style.opacity=1; },160);
+    }
+
+    showSister(sisterIdx);
+    let sisterTimer = setInterval(()=>{ sisterIdx=(sisterIdx+1)%sisterMessages.length; showSister(sisterIdx); },7000);
+
+    if(nextBtn) nextBtn.addEventListener('click', ()=>{
+        clearInterval(sisterTimer);
+        sisterIdx=(sisterIdx+1)%sisterMessages.length;
+        showSister(sisterIdx);
+        sisterTimer=setInterval(()=>{ sisterIdx=(sisterIdx+1)%sisterMessages.length; showSister(sisterIdx); },7000);
+    });
+
+    if(affirmBtn) affirmBtn.addEventListener('click', ()=>{
+        const text = sisterMessages[sisterIdx % sisterMessages.length];
+        if('speechSynthesis' in window){
+            const u=new SpeechSynthesisUtterance(text);
+            u.lang='en-US'; u.rate=0.95;
+            window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+        } else alert(text);
+    });
+
+    if(pauseBtn) pauseBtn.addEventListener('click', ()=>{
+        clearInterval(sisterTimer); pauseBtn.classList.add('d-none'); resumeBtn.classList.remove('d-none');
+    });
+    if(resumeBtn) resumeBtn.addEventListener('click', ()=>{
+        sisterTimer=setInterval(()=>{ sisterIdx=(sisterIdx+1)%sisterMessages.length; showSister(sisterIdx); },7000);
+        resumeBtn.classList.add('d-none'); pauseBtn.classList.remove('d-none');
+    });
+
+    if(shareBtn) shareBtn.addEventListener('click', async ()=>{
+        const text = sisterMessages[sisterIdx % sisterMessages.length];
+        if(navigator.share){
+            try{ await navigator.share({ text: text, title:'Your Sister — MuteSOS' }); }
+            catch(e){ console.warn('Share failed',e); }
+        } else {
+            try{ await navigator.clipboard.writeText(text); const prev=shareBtn.innerHTML; shareBtn.innerHTML='Copied ✓'; setTimeout(()=>shareBtn.innerHTML=prev,1500); }
+            catch(e){ alert(text); }
+        }
+    });
+
+    // Quick Exit double 'e'
+    let eCount=0, eTimer=null;
+    window.addEventListener('keydown',(ev)=>{
+        if(ev.key==='e' || ev.key==='E'){
+            eCount++;
+            if(eCount===2){ window.location.href='https://www.google.com'; }
+            clearTimeout(eTimer);
+            eTimer=setTimeout(()=>{ eCount=0; },700);
+        }
+    });
+
+    setInterval(requestGeolocation,30000);
+
+});
+</script>
+{% endif %}
+
+{% endblock %}
+

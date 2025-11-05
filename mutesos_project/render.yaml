@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: mutesos-web
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn mutesos_project.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: mutesos_project.settings
+      - key: SECRET_KEY
+        value: 
+      - key: DEBUG
+        value: False
+    staticPublishPath: staticfiles
